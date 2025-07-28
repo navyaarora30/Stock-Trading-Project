@@ -17,6 +17,9 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+const signupRoute = require("./routes/signupRoute");
+app.use("/api", signupRoute);
+
 // GET all holdings
 app.get("/allHoldings", async (req, res) => {
   const allHoldings = await HoldingsModel.find({});
