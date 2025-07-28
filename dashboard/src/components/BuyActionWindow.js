@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axiosInstance"; // ✅ Import central Axios instance
 
 import GeneralContext from "./GeneralContext";
 import "./BuyActionWindow.css";
@@ -9,11 +9,11 @@ const BuyActionWindow = ({ uid }) => {
   const [stockQuantity, setStockQuantity] = useState(1);
   const [stockPrice, setStockPrice] = useState(0.0);
 
-  const { closeBuyWindow } = useContext(GeneralContext); // ✅
+  const { closeBuyWindow } = useContext(GeneralContext);
 
   const handleBuyClick = async () => {
     try {
-      const res = await axios.post("http://localhost:3003/newOrder", {
+      const res = await api.post("/newOrder", {
         name: uid,
         qty: Number(stockQuantity),
         price: Number(stockPrice),
@@ -23,12 +23,12 @@ const BuyActionWindow = ({ uid }) => {
       closeBuyWindow();
     } catch (err) {
       console.error("Error placing order:", err);
-      alert("Failed to place order: " + (err.response?.data?.message || err.message));
+      alert("Failed to place order: " + (err.response?.data || err.message));
     }
   };
 
   const handleCancelClick = () => {
-    closeBuyWindow(); // ✅ Fixed here
+    closeBuyWindow();
   };
 
   return (
@@ -63,7 +63,7 @@ const BuyActionWindow = ({ uid }) => {
         <span>Margin required ₹140.65</span>
         <div>
           <button className="btn btn-blue" onClick={handleBuyClick}>Buy</button>
-          <button className="btn btn-grey" onClick={handleCancelClick}>Cancel</button> {/* Fixed */}
+          <button className="btn btn-grey" onClick={handleCancelClick}>Cancel</button>
         </div>
       </div>
     </div>
@@ -71,3 +71,4 @@ const BuyActionWindow = ({ uid }) => {
 };
 
 export default BuyActionWindow;
+

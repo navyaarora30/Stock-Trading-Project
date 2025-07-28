@@ -1,6 +1,39 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import api from "../api/axiosInstance";
 
 const Summary = () => {
+  const [holdings, setHoldings] = useState([]);
+  const [investment, setInvestment] = useState(0);
+  const [currentValue, setCurrentValue] = useState(0);
+
+  useEffect(() => {
+    async function fetchHoldings() {
+      try {
+        const res = await api.get("/allHoldings");
+        setHoldings(res.data);
+
+        let invest = 0;
+        let current = 0;
+
+        res.data.forEach((stock) => {
+          invest += stock.avg * stock.qty;
+          current += stock.price * stock.qty;
+        });
+
+        setInvestment(invest);
+        setCurrentValue(current);
+      } catch (err) {
+        console.error("Error fetching summary:", err);
+      }
+    }
+
+    fetchHoldings();
+  }, []);
+
+  const pnl = currentValue - investment;
+  const pnlPercentage = ((pnl / investment) * 100).toFixed(2);
+  const isProfit = pnl >= 0;
+
   return (
     <>
       <div className="username">
@@ -34,13 +67,14 @@ const Summary = () => {
 
       <div className="section">
         <span>
-          <p>Holdings (13)</p>
+          <p>Holdings ({holdings.length})</p>
         </span>
 
         <div className="data">
           <div className="first">
-            <h3 className="profit">
-              1.55k <small>+5.20%</small>{" "}
+            <h3 className={isProfit ? "profit" : "loss"}>
+              {pnl.toFixed(2)}{" "}
+              <small>{isProfit ? "+" : "-"}{Math.abs(pnlPercentage)}%</small>
             </h3>
             <p>P&L</p>
           </div>
@@ -48,10 +82,10 @@ const Summary = () => {
 
           <div className="second">
             <p>
-              Current Value <span>31.43k</span>{" "}
+              Current Value <span>{currentValue.toFixed(2)}</span>{" "}
             </p>
             <p>
-              Investment <span>29.88k</span>{" "}
+              Investment <span>{investment.toFixed(2)}</span>{" "}
             </p>
           </div>
         </div>

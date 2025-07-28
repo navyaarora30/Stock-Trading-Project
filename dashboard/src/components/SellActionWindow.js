@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
+import api from "../api/axiosInstance"; // ✅ shared axios instance
 
 import GeneralContext from "./GeneralContext";
 import "./BuyActionWindow.css";
@@ -8,18 +8,18 @@ const SellActionWindow = ({ uid }) => {
   const [stockQuantity, setStockQuantity] = useState(1);
   const [stockPrice, setStockPrice] = useState(0.0);
 
-  const { closeSellWindow } = useContext(GeneralContext); 
+  const { closeSellWindow } = useContext(GeneralContext);
 
   const handleSellClick = async () => {
     try {
-      const res = await axios.post("http://localhost:3003/newOrder", {
+      const res = await api.post("/newOrder", {
         name: uid,
         qty: Number(stockQuantity),
         price: Number(stockPrice),
-        mode: "SELL", // ✅ Different mode
+        mode: "SELL",
       });
       console.log("Order placed:", res.data);
-      closeSellWindow(); // ✅ Close modal
+      closeSellWindow();
     } catch (err) {
       console.error("Error placing order:", err);
       alert("Failed to place SELL order: " + (err.response?.data?.message || err.message));
@@ -27,7 +27,7 @@ const SellActionWindow = ({ uid }) => {
   };
 
   const handleCancelClick = () => {
-    closeSellWindow(); // same here
+    closeSellWindow();
   };
 
   return (
